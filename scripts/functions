@@ -1,0 +1,117 @@
+execute_install_from_archive()
+{
+  VENDOR="$1"
+  DESTDIR="$2"
+  SRCFILE="$3"
+  XZIP=$(mktemp -u XXXXXXXXXXXXXXXXX)
+
+  grep -v "^#" < $SRCFILE | \
+  while read xchk xurl xmirrors; do
+    echo "Downloading $xurl -> $XTMP/$XZIP"
+    case "$xurl" in
+      *.zip)
+        XTARGET="./$XZIP.zip"
+        ;;
+      *.tar.gz)
+            XTARGET="./$XZIP.tar.gz"
+        ;;
+      *.tar.bz2)
+            XTARGET="./$XZIP.tar.bz2"
+        ;;
+      *.otf|*.ttf)
+            XTARGET="./$(basename $xurl)"
+        ;;
+    esac
+    echo "Downloading $xurl -> $XTARGET"
+    cd $XTMP/ && $XCURL -o "$XTARGET" $xurl $xmirrors
+    if [ "$?" -gt 0 ]; then
+        echo "download failed ... exiting."
+        exit 1
+    fi
+    if [ "$xchk" != "0" ]; then
+        XHASH="$XTARGET.hash"
+        cd $XTMP/ && echo "$xchk  ./$(basename $XTARGET)" > "$XHASH"
+        cd $XTMP/ && shasum -c "$XHASH"
+        if [ "$?" -gt 0 ]; then
+            echo "hash verification failed ... exiting."
+            exit 1
+        fi
+    else
+        cd $XTMP/ && shasum -a 1 "$XTARGET"
+    fi
+    case "$XTARGET" in
+      *.zip)
+        cd $XTMP/ && unzip -j $XTMP/$XZIP.zip
+        ;;
+      *.tar.gz)
+        cd $XTMP/ && tar -xvf $XTMP/$XZIP.tar.gz -C $XTMP
+        ;;
+      *.tar.bz2)
+        cd $XTMP/ && tar -xvf $XTMP/$XZIP.tar.bz2 -C $XTMP
+        ;;
+    esac
+    mkdir -p "$DESTDIR/$VENDOR"
+    for x in $(find $XTMP/ -name "*.?tf" -type f); do
+        cd $XTMP/ && cp -v "$x" "$DESTDIR/$VENDOR/"
+    done
+    find $XTMP/ -type f -delete
+  done
+}
+
+list_commands ()
+{
+  usage
+  for x in $XDIR/scripts/*.sh; do
+    b=$(basename $x .sh)
+    echo "install-fonts $b [... options ...]"
+  done
+  echo -e "\n$SEPR"
+}
+
+execute_install_from_archive_list()
+{
+  VENDOR="$1"
+  shift
+  LIST="$1"
+  shift
+  # there is only one possible option: the destdir
+  # --sys(tem) -sys(tem)
+  # --local -local
+  # --user -user
+  # --prefix -prefix <path>
+  case "$1" in
+    --h*|-h*|h*)
+      cat <<EOT
+      Possible options:
+
+      --system ... install to system directory "$FSYSDIR"
+      --local ... install to system directory "$FLCLDIR"
+      --user ... install to system directory "$FUSRDIR"
+      --prefix <path> ... install to given directory prefix
+EOT
+      ;;
+    --sys*|-sys*)
+      execute_install_from_archive "$VENDOR" "$FSYSDIR" "$LIST"
+      ;;
+    --local*|-local*)
+      execute_install_from_archive "$VENDOR" "$FLCLDIR" "$LIST"
+      ;;
+    --user*|-user*)
+      execute_install_from_archive "$VENDOR" "$FUSRDIR" "$LIST"
+      ;;
+    --pref*|-pref*)
+      execute_install_from_archive "$VENDOR" "$2" "$LIST"
+      ;;
+    *) echo "unknown option /$1/ ... exiting."
+      exit 1
+      ;;
+  esac
+}
+
+execute_command ()
+{
+  C="$1"
+  shift
+  source "$XDIR/scripts/$C.sh"
+  execute_install "$@"
+}
