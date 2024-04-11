@@ -1,0 +1,10 @@
+#!/usr/bin/fontforge -lang=ff
+
+
+fonts = FontsInFile($argv[1]);
+
+Open($argv[1]+"("+fonts[Strtol($argv[2])]+")");
+
+Generate($argv[3]);
+
+Quit(0);

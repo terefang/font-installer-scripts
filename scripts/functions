@@ -58,8 +58,10 @@ execute_install_from_archive()
             ;;
         esac
         mkdir -p "$DESTDIR/$VENDOR"
-        for x in $(find $XTMP/ -name "*.?tf" -type f); do
-            cd $XTMP/ && cp -v "$x" "$DESTDIR/$VENDOR/"
+        find $XTMP/ -name "*.?tf" -type f | \
+        while IFS= read -r xline ; do
+            xfile=$(basename "$xline"|tr ' ' '-')
+            cd $XTMP/ && cp -v "$xline" "$DESTDIR/$VENDOR/$xfile"
         done
         find $XTMP/ -type f -delete
     fi
@@ -134,6 +136,10 @@ EOT
           ;;
         --fam*|-fam*)
             XFAMILY="$2"
+            shift
+          ;;
+        --query*|-query*)
+            XQUERY="$2"
             shift
           ;;
         *) echo "unknown option /$1/ ... exiting."

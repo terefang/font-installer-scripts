@@ -103,9 +103,27 @@ install-fonts github -repo ORG/REPO
 install-fonts github -url https://github.com/ORG/REPO/path/to/release/archive.zip
 ```
 
+### fontesk
+
+the fontesk provider is a little bit special due to the limitations of the api.
+
+* it is not possible to list on font on the site
+* always search for
+
+```
+install-fonts fontesk -list -query [match]
+```
+
+* and/or refine with a filter
+
+```
+install-fonts fontesk -list -query [match] -filter [regex]
+```
+
+* the known limitation is 20 entries max.
+
 ## TODO
 
 * standalone Fira?, Noto?, Roboto?, Droid?
-* fix the mswin provider
 * maybe change cp to install
 

@@ -7,6 +7,7 @@ XTMP=$(mktemp -d /tmp/fontinstall-XXXXXXXXXXXXXXXXXXXX)
 XCURL="curl --connect-timeout 2 --max-time 10 -o "
 XARIA="aria2c --connect-timeout 2 --timeout 10 -o "
 XGET="$XARIA"
+XTTC="fontforge -lang=ff -script $XDIR/scripts/ttc_to_ttf.ff"
 cleanup()
 {
   rm -rf "$XTMP"
