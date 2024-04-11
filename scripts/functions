@@ -43,18 +43,18 @@ execute_install_from_archive()
         fi
         case "$XTARGET" in
           *.zip)
-            cd $XTMP/ && unzip -o -j $XTMP/$XZIP.zip
+            cd $XTMP/ && unzip -o -j "$XTARGET"
                 if [ "$?" -gt 0 ]; then
                   echo "extract failed ... exiting."
-                  hexdump -C < $XTMP/$XZIP.zip | head -10
+                  hexdump -C < "$XTARGET" | head -10
                   exit 1
                 fi
             ;;
-          *.tar.gz)
-            cd $XTMP/ && tar -xvf $XTMP/$XZIP.tar.gz -C $XTMP
+          *.tar|*.tar.gz|*.tar.bz2|*.tar.xz)
+            cd $XTMP/ && tar -xvf "$XTARGET" -C $XTMP
             ;;
-          *.tar.bz2)
-            cd $XTMP/ && tar -xvf $XTMP/$XZIP.tar.bz2 -C $XTMP
+          *.cab|*.CAB)
+            cd $XTMP/ && cabextract -L -d "$XTMP" "$XTARGET"
             ;;
         esac
         mkdir -p "$DESTDIR/$VENDOR"
