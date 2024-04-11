@@ -4,8 +4,9 @@ XDIR=$(cd $(dirname $0) && pwd)
 SEPR="# ------------------------------"
 XSYS=$(uname)
 XTMP=$(mktemp -d /tmp/fontinstall-XXXXXXXXXXXXXXXXXXXX)
-XCURL="curl --connect-timeout 5 --max-time 30 "
-XCURL="aria2c --connect-timeout 5 --timeout 30 "
+XCURL="curl --connect-timeout 2 --max-time 10 -o "
+XARIA="aria2c --connect-timeout 2 --timeout 10 -o "
+XGET="$XARIA"
 cleanup()
 {
   rm -rf "$XTMP"

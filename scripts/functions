@@ -1,15 +1,18 @@
 execute_install_from_archive()
 {
-  VENDOR="$1"
-  DESTDIR="$2"
-  SRCFILE="$3"
-  XZIP=$(mktemp -u XXXXXXXXXXXXXXXXX)
+  local VENDOR="$1"
+  local DESTDIR="$2"
+  local SRCFILE="$3"
+  local FILTER="http"
+  if [ ! -z "$4" ]; then
+   local FILTER="$4"
+  fi
+  local XZIP=$(mktemp -u XXXXXXXXXXXXXXXXX)
 
-  grep -v "^#" < $SRCFILE | \
+  grep -v "^#" < $SRCFILE |grep -E -i "$FILTER" | \
   while read xchk xurl xmirrors; do
-    echo "Downloading $xurl -> $XTMP/$XZIP"
     case "$xurl" in
-      *.zip)
+      *.zip|*family=*)
         XTARGET="./$XZIP.zip"
         ;;
       *.tar.gz)
@@ -23,38 +26,43 @@ execute_install_from_archive()
         ;;
     esac
     echo "Downloading $xurl -> $XTARGET"
-    cd $XTMP/ && $XCURL -o "$XTARGET" $xurl $xmirrors
+    cd $XTMP/ && $XGET "$XTARGET" $xurl $xmirrors
     if [ "$?" -gt 0 ]; then
-        echo "download failed ... exiting."
-        exit 1
-    fi
-    if [ "$xchk" != "0" ]; then
-        XHASH="$XTARGET.hash"
-        cd $XTMP/ && echo "$xchk  ./$(basename $XTARGET)" > "$XHASH"
-        cd $XTMP/ && shasum -c "$XHASH"
-        if [ "$?" -gt 0 ]; then
-            echo "hash verification failed ... exiting."
-            exit 1
-        fi
+        echo "download failed ... next."
     else
-        cd $XTMP/ && shasum -a 1 "$XTARGET"
+        if [ "$xchk" != "0" ]; then
+            XHASH="$XTARGET.hash"
+            cd $XTMP/ && echo "$xchk  ./$(basename $XTARGET)" > "$XHASH"
+            cd $XTMP/ && shasum -c "$XHASH"
+            if [ "$?" -gt 0 ]; then
+                            echo "hash verification failed ... exiting."
+                            exit 1
+                        fi
+        else
+            cd $XTMP/ && shasum -a 1 "$XTARGET"
+        fi
+        case "$XTARGET" in
+          *.zip)
+            cd $XTMP/ && unzip -o -j $XTMP/$XZIP.zip
+                if [ "$?" -gt 0 ]; then
+                  echo "extract failed ... exiting."
+                  hexdump -C < $XTMP/$XZIP.zip | head -10
+                  exit 1
+                fi
+            ;;
+          *.tar.gz)
+            cd $XTMP/ && tar -xvf $XTMP/$XZIP.tar.gz -C $XTMP
+            ;;
+          *.tar.bz2)
+            cd $XTMP/ && tar -xvf $XTMP/$XZIP.tar.bz2 -C $XTMP
+            ;;
+        esac
+        mkdir -p "$DESTDIR/$VENDOR"
+        for x in $(find $XTMP/ -name "*.?tf" -type f); do
+            cd $XTMP/ && cp -v "$x" "$DESTDIR/$VENDOR/"
+        done
+        find $XTMP/ -type f -delete
     fi
-    case "$XTARGET" in
-      *.zip)
-        cd $XTMP/ && unzip -j $XTMP/$XZIP.zip
-        ;;
-      *.tar.gz)
-        cd $XTMP/ && tar -xvf $XTMP/$XZIP.tar.gz -C $XTMP
-        ;;
-      *.tar.bz2)
-        cd $XTMP/ && tar -xvf $XTMP/$XZIP.tar.bz2 -C $XTMP
-        ;;
-    esac
-    mkdir -p "$DESTDIR/$VENDOR"
-    for x in $(find $XTMP/ -name "*.?tf" -type f); do
-        cd $XTMP/ && cp -v "$x" "$DESTDIR/$VENDOR/"
-    done
-    find $XTMP/ -type f -delete
   done
 }
 
@@ -68,44 +76,78 @@ list_commands ()
   echo -e "\n$SEPR"
 }
 
-execute_install_from_archive_list()
+make_filter_and_dest()
 {
-  VENDOR="$1"
-  shift
-  LIST="$1"
-  shift
   # there is only one possible option: the destdir
   # --sys(tem) -sys(tem)
   # --local -local
   # --user -user
   # --prefix -prefix <path>
-  case "$1" in
-    --h*|-h*|h*)
-      cat <<EOT
+  # --filter -filter <rx>
+  DEST=
+  FILTER=
+  DOLIST=0
+  while [ ! -z "$1" ]; do
+      case "$1" in
+        --h*|-h*|h*)
+          cat <<EOT
       Possible options:
 
       --system ... install to system directory "$FSYSDIR"
       --local ... install to system directory "$FLCLDIR"
       --user ... install to system directory "$FUSRDIR"
       --prefix <path> ... install to given directory prefix
+      --filter <rx> ... only install resources matching
 EOT
-      ;;
-    --sys*|-sys*)
-      execute_install_from_archive "$VENDOR" "$FSYSDIR" "$LIST"
-      ;;
-    --local*|-local*)
-      execute_install_from_archive "$VENDOR" "$FLCLDIR" "$LIST"
-      ;;
-    --user*|-user*)
-      execute_install_from_archive "$VENDOR" "$FUSRDIR" "$LIST"
-      ;;
-    --pref*|-pref*)
-      execute_install_from_archive "$VENDOR" "$2" "$LIST"
-      ;;
-    *) echo "unknown option /$1/ ... exiting."
-      exit 1
-      ;;
-  esac
+            exit 0
+          ;;
+        --sys*|-sys*)
+            DEST="$FSYSDIR"
+          ;;
+        --local*|-local*)
+            DEST="$FLCLDIR"
+          ;;
+        --user*|-user*)
+            DEST="$FUSRDIR"
+          ;;
+        --pref*|-pref*)
+            DEST="$2"
+            shift
+          ;;
+        --filter*|-filter*)
+            FILTER="$2"
+            shift
+          ;;
+        --no-vend*|-no-vend*)
+            VENDOR=
+          ;;
+        --list*|-list*)
+            DOLIST=1
+          ;;
+        *) echo "unknown option /$1/ ... exiting."
+          exit 1
+          ;;
+      esac
+      shift
+  done
+}
+
+execute_install_from_archive_list()
+{
+  VENDOR="$1"
+  shift
+  LIST="$1"
+  shift
+  make_filter_and_dest "$@"
+  if [ "$DOLIST" -gt 0 ]; then
+    if [ -z "$FILTER" ]; then
+      cat "$LIST"|grep -v '^#'
+    else
+      cat "$LIST"|grep -v '^#' |grep -E -i "$FILTER"
+    fi
+    exit 0
+  fi
+  execute_install_from_archive "$VENDOR" "$DEST" "$LIST" $FILTER
 }
 
 execute_command ()
