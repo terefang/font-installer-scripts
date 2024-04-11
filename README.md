@@ -76,11 +76,11 @@ install-fonts provider -prefix /path/to/prefix/
 ### adf, nerd, tex, urw, google
 
 ```
-install-fonts provider -filter [regex]
+install-fonts provider -list -filter [regex]
 ```
 
 ```
-install-fonts provider -list -filter [regex]
+install-fonts provider -filter [regex]
 ```
 
 ### google
@@ -92,11 +92,15 @@ install-fonts google -family [name]
 ### github
 
 ```
-install-fonts github -url https://github.com/ORG/REPO/path/to/release/archive.zip
+install-fonts github -list -repo ORG/REPO
 ```
 
 ```
 install-fonts github -repo ORG/REPO
+```
+
+```
+install-fonts github -url https://github.com/ORG/REPO/path/to/release/archive.zip
 ```
 
 ## TODO
