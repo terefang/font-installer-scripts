@@ -35,50 +35,69 @@ the following utilities are used:
 install-fonts [provider] [ ... options ... ]
 ```
 
-### List available providers
+### generic options
+
+#### List available providers
 
 ```
 install-fonts -list
 ```
 
-### List available fonts
+#### List available fonts
 
 ```
 install-fonts provider -list
 ```
 
-### install to system directories
+#### install to system directories
 
 ```
 install-fonts provider -system
 ```
 
-### install to local directories
+#### install to local directories
 
 ```
 install-fonts provider -local
 ```
 
-### install to user directories
+#### install to user directories
 
 ```
 install-fonts provider -user
 ```
 
-### install to specific directories
+#### install to specific directories
 
 ```
 install-fonts provider -prefix /path/to/prefix/
 ```
 
-## PROVIDERS
+### adf, nerd, tex, urw, google
 
-* adf -- slow and incomplete if tuxfamily.org is offline
-* google -- working again with new google api (1600+ fonts!)
-* mswin -- broken, todo
-* nerd
-* tex -- only has tex-gyre
-* urw
+```
+install-fonts provider -filter [regex]
+```
+
+```
+install-fonts provider -list -filter [regex]
+```
+
+### google
+
+```
+install-fonts google -family [name]
+```
+
+### github
+
+```
+install-fonts github -url https://github.com/ORG/REPO/path/to/release/archive.zip
+```
+
+```
+install-fonts github -repo ORG/REPO
+```
 
 ## TODO
 

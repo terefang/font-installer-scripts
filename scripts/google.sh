@@ -7,6 +7,7 @@ execute_install()
   VENDOR="google"
   LIST="$XTMP/google.urls"
   XGET="wget -O "
+  XFAMILY=
   # there is only one possible option: the destdir
   # --sys(tem) -sys(tem)
   # --local -local
@@ -28,6 +29,10 @@ execute_install()
     curl "$GFONTLIST" | jq -r '.familyMetadataList[].family' |tr ' ' '+' > "$LIST.tmp"
   else
     curl "$GFONTLIST" | jq -r '.familyMetadataList[].family' |grep -E -i "$FILTER"|tr ' ' '+' > "$LIST.tmp"
+  fi
+
+  if [ ! -z "$XFAMILY" ]; then
+    echo "$XFAMILY" |tr ' ' '+' > "$LIST.tmp"
   fi
 
   for x in $(cat "$LIST.tmp"); do

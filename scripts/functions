@@ -124,6 +124,18 @@ EOT
         --list*|-list*)
             DOLIST=1
           ;;
+        --url*|-url*)
+            XURI="$2"
+            shift
+          ;;
+        --repo*|-repo*)
+            XREPO="$2"
+            shift
+          ;;
+        --fam*|-fam*)
+            XFAMILY="$2"
+            shift
+          ;;
         *) echo "unknown option /$1/ ... exiting."
           exit 1
           ;;
