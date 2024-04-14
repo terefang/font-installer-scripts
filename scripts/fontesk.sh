@@ -58,6 +58,7 @@ execute_install()
   for x in $XLIST; do
     XDL=$(curl "$x"|xq -q 'div.fw-col-inner script' -n|fgrep location.href |cut -f2 -d';' |cut -f1 -d'?')
     echo "0  $XDL/font.zip" > "$LIST"
-    execute_install_from_archive "$VENDOR" "$DEST" "$LIST"
+    XFN=$(curl "$x"|xq -q 'h1[itemprop="headline"]' |tr -d ' ')
+    execute_install_from_archive "$VENDOR/$XFN" "$DEST" "$LIST"
   done
 }

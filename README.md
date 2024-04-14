@@ -9,6 +9,8 @@ This package allows for easy installation of Fonts from the Web including:
 * Libertinus Fonts
 * MS Core Fonts For Web
 * Nerd Fonts
+* Fira Fonts
+* Open Sans (with Noto updates)
 * URW Base 35 Fonts
 
 You will need an Internet connection during execution.
@@ -73,7 +75,7 @@ install-fonts provider -user
 install-fonts provider -prefix /path/to/prefix/
 ```
 
-### adf, nerd, tex, urw, google
+### adf, nerd, tex, urw, google, fira, opensans
 
 ```
 install-fonts provider -list -filter [regex]
@@ -124,6 +126,7 @@ install-fonts fontesk -list -query [match] -filter [regex]
 
 ## TODO
 
-* standalone Fira?, Noto?, Roboto?, Droid?
+* standalone Noto?, Roboto?, Droid?
+* https://fontswan.com/wp-content/uploads/2023/05/azonix.zip
 * maybe change cp to install
 
