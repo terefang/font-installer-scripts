@@ -10,6 +10,7 @@ This package allows for easy installation of Fonts from the Web including:
 * MS Core Fonts For Web
 * Nerd Fonts
 * Fira Fonts
+* Plex Fonts
 * Open Sans (with Noto updates)
 * URW Base 35 Fonts
 
@@ -75,7 +76,7 @@ install-fonts provider -user
 install-fonts provider -prefix /path/to/prefix/
 ```
 
-### adf, nerd, tex, urw, google, fira, opensans
+### adf, nerd, tex, urw, google, fira, opensans, plex, ...
 
 ```
 install-fonts provider -list -filter [regex]
