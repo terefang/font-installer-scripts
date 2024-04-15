@@ -82,7 +82,7 @@ install-fonts provider -prefix /path/to/prefix/
 install-fonts provider -prefix /path/to/prefix/ -zip
 ```
 
-### adf, nerd, tex, urw, google, fira, opensans, plex, ...
+### adf, nerd, tex, urw, google, opensans, ...
 
 ```
 install-fonts provider -list -filter [regex]
@@ -99,6 +99,10 @@ install-fonts google -family [name]
 ```
 
 ### github
+
+```
+install-fonts github -list
+```
 
 ```
 install-fonts github -list -repo ORG/REPO
