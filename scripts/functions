@@ -21,12 +21,12 @@ execute_install_from_archive()
       *.tar.bz2)
             XTARGET="./$XZIP.tar.bz2"
         ;;
-      *.otf|*.ttf)
+      *.otf|*.ttf|*.OTF|*.TTF)
             XTARGET="./$(basename $xurl)"
         ;;
     esac
     echo "Downloading $xurl -> $XTARGET"
-    cd $XTMP/ && $XGET "$XTARGET" $xurl $xmirrors
+    cd $XTMP/ && $XGET "$XTARGET" "$xurl" $xmirrors
     if [ "$?" -gt 0 ]; then
         echo "download failed ... next."
     else
@@ -57,11 +57,32 @@ execute_install_from_archive()
             cd $XTMP/ && cabextract -L -d "$XTMP" "$XTARGET"
             ;;
         esac
-        mkdir -p "$DESTDIR/$VENDOR"
-        find $XTMP/ -name "*.?tf" -type f | \
+        if [ "$DOZIP" -gt 0 ]; then
+            mkdir -p "$DESTDIR"
+        else
+            mkdir -p "$DESTDIR/$VENDOR"
+        fi
+        find $XTMP/ -iname "*.?tf" -type f | sort | \
         while IFS= read -r xline ; do
-            xfile=$(basename "$xline"|tr ' ' '-')
-            cd $XTMP/ && cp -v "$xline" "$DESTDIR/$VENDOR/$xfile"
+            xfile="$xline"
+            case "$xfile" in
+                *.TTF)
+                    xfile=$(basename "$xfile" ".TTF").ttf
+                    ;;
+                *.OTF)
+                    xfile=$(basename "$xfile" ".OTF").otf
+                    ;;
+                *)
+                    xfile=$(basename "$xfile")
+                    ;;
+            esac
+            xfile=$(tr ' ' '-' <<< "$xfile")
+            if [ "$DOZIP" -gt 0 ]; then
+                xvendor=$(tr -d -c '[[:alnum:]]' <<< "$VENDOR")
+                cd $XTMP/ && (mv -v "$xline" "$xfile" ; zip -9 "$DESTDIR/$xvendor.zip" "$xfile")
+            else
+                cd $XTMP/ && cp -v "$xline" "$DESTDIR/$VENDOR/$xfile"
+            fi
         done
         find $XTMP/ -type f -delete
     fi
@@ -71,10 +92,18 @@ execute_install_from_archive()
 list_commands ()
 {
   usage
-  for x in $XDIR/scripts/*.sh; do
-    b=$(basename $x .sh)
-    echo "install-fonts $b [... options ...]"
-  done
+  for x in $XDIR/scripts/*.sh $XDIR/data/*.urls; do
+    case "$x" in
+        *.sh)
+            b=$(basename $x .sh)
+            echo "install-fonts $b [... options ...]"
+            ;;
+        *.urls)
+            b=$(basename $x .urls)
+            echo "install-fonts $b [... options ...]"
+            ;;
+    esac
+  done | sort
   echo -e "\n$SEPR"
 }
 
@@ -89,6 +118,7 @@ make_filter_and_dest()
   DEST=
   FILTER=
   DOLIST=0
+  DOZIP=0
   while [ ! -z "$1" ]; do
       case "$1" in
         --h*|-h*|h*)
@@ -125,6 +155,9 @@ EOT
           ;;
         --list*|-list*)
             DOLIST=1
+          ;;
+        --zip*|-zip*)
+            DOZIP=1
           ;;
         --url*|-url*)
             XURI="$2"
@@ -172,6 +205,13 @@ execute_command ()
 {
   C="$1"
   shift
-  source "$XDIR/scripts/$C.sh"
-  execute_install "$@"
+  if [ -f "$XDIR/scripts/$C.sh" ]; then
+      source "$XDIR/scripts/$C.sh"
+      execute_install "$@"
+  elif [ -f "$XDIR/data/$C.urls" ]; then
+    execute_install_from_archive_list "$C" "$XDIR/data/$C.urls" "$@"
+  else
+    echo "provider /$C/ not found ... exiting."
+    exit 1
+  fi
 }

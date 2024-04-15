@@ -44,13 +44,23 @@ execute_install()
 
     # https://downloads.sourceforge.net/corefonts/OldFiles/IELPKTH.CAB
     wget -O "$XXTMP/IELPKTH.cab" "https://downloads.sourceforge.net/corefonts/OldFiles/IELPKTH.CAB"
+
     cd "$XXTMP" && cabextract -L -d "$XXTMP" "$XXTMP/IELPKTH.cab"
+
     rm -f "$XXTMP/IELPKTH.cab"
+
     for x in $(find "$XXTMP" -name '*.cab' -type f); do
        cd "$XXTMP" && cabextract -L -d "$XXTMP" "$x"
     done
+
     mv -v $(find "$XXTMP" -name '*.ttf' -type f) "$XYTMP"
-    mkdir -p "$DEST/$VENDOR"
+
+    if [ "$DOZIP" -gt 0 ]; then
+      mkdir -p "$DEST"
+    else
+      mkdir -p "$DEST/$VENDOR"
+    fi
+
     #mv -v $(find "$XYTMP" -type f) "$DEST/$VENDOR"
     #find "$XYTMP" -name -type f -ls
     $XTTC "$XYTMP/cambria.ttc" 0 "$XYTMP/cambria.ttf"
@@ -58,7 +68,12 @@ execute_install()
 
     grep -v "^#" < "$XDIR/data/mswin.list" | \
     while read xfrom xto xrest; do
-      install "$XYTMP/$xfrom" "$DEST/$VENDOR/$xto"
+      if [ "$DOZIP" -gt 0 ]; then
+          xvendor=$(tr -d -c '[[:alnum:]]' <<< "$VENDOR")
+          cd $XYTMP/ && (mv -v "$xfrom" "$xto" ; zip -9 "$DEST/$xvendor.zip" "$xto")
+      else
+          install "$XYTMP/$xfrom" "$DEST/$VENDOR/$xto"
+      fi
     done
     rm -rf "$XXTMP" "$XYTMP"
 }

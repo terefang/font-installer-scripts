@@ -76,6 +76,12 @@ install-fonts provider -user
 install-fonts provider -prefix /path/to/prefix/
 ```
 
+#### create zip archive in  specific directories
+
+```
+install-fonts provider -prefix /path/to/prefix/ -zip
+```
+
 ### adf, nerd, tex, urw, google, fira, opensans, plex, ...
 
 ```
