@@ -2,6 +2,7 @@ execute_install()
 {
   XURI=
   XREPO=
+  VENDOR=
   # --url <http:....>
   # --repo <org>/<repo>
   make_filter_and_dest "$@"
@@ -37,7 +38,11 @@ execute_install()
       XREPO=$(echo "$XURI" | cut -d/ -f4-5)
   fi
 
-  VENDOR="github/$XREPO"
+  if [ $VENDOR = '.' ]; then
+    VENDOR=
+  else
+    VENDOR="github/$XREPO"
+  fi
   LIST="$XTMP/github.urls"
   XGET="wget -O "
   echo "0  $XURI" >> "$LIST"

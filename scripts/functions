@@ -130,6 +130,7 @@ make_filter_and_dest()
       --user ... install to system directory "$FUSRDIR"
       --prefix <path> ... install to given directory prefix
       --filter <rx> ... only install resources matching
+      --list ... list possible choices
 EOT
             exit 0
           ;;
@@ -151,7 +152,7 @@ EOT
             shift
           ;;
         --no-vend*|-no-vend*)
-            VENDOR=
+            VENDOR=.
           ;;
         --list*|-list*)
             DOLIST=1

@@ -1,4 +1,12 @@
 # --- TeX fonts that are not provided outerwise
 0   https://mirrors.ctan.org/install/fonts/tex-gyre.tds.zip
 0   https://mirrors.ctan.org/install/fonts/marcellus.tds.zip
+#0   http://www.gust.org.pl/projects/e-foundry/latin-modern/download/lm2.004otf.zip?/latin-modern.zip
+0   https://www.gust.org.pl/projects/e-foundry/latin-modern/download/lm2.005bas.zip?/latin-modern.zip
+0 https://www.gust.org.pl/projects/e-foundry/poltawski/download/ap1.101bas.zip?/poltawski.zip
+0 https://jmn.pl/download/AntykwaTorunska-otf-2_08.zip?/torunska.zio
+0 https://jmn.pl/download/Kurier-otf-0_995.zip?/kurier.zip
+0 https://jmn.pl/download/Iwona-otf-0_995.zip?/iwona.zip
+0 https://www.marksimonson.com/assets/content/fonts/AnonymousPro-1_002.zip
+0 https://www.marksimonson.com/assets/content/fonts/AnonymousProMinus-1_003.zip
 # ---
