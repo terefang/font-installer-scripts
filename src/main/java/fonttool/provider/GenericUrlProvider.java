@@ -1,0 +1,137 @@
+package fonttool.provider;
+
+import com.github.terefang.jmelange.commons.http.HttpOkClient;
+import com.github.terefang.jmelange.commons.loader.ResourceLoader;
+import com.github.terefang.jmelange.commons.util.FileUtil;
+import com.github.terefang.jmelange.commons.util.IOUtil;
+import com.github.terefang.jmelange.commons.util.OsUtil;
+import fonttool.FontMain;
+import lombok.SneakyThrows;
+
+import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+public class GenericUrlProvider implements FontProvider
+{
+    Thread _syncThread = null;
+
+    List<String> urls;
+    String vendor;
+    public GenericUrlProvider(String _vendor, List<String> _urls)
+    {
+        this.vendor = _vendor;
+        this.urls = _urls;
+    }
+
+    public GenericUrlProvider(String _vendor)
+    {
+        this.vendor = _vendor;
+        this.urls = null;
+    }
+
+    public static GenericUrlProvider from(String _vendor, List<String> _urls)
+    {
+        return new GenericUrlProvider(_vendor, _urls);
+    }
+
+    public static GenericUrlProvider from(String _vendor, ResourceLoader _loader)
+    {
+        try (InputStream _in = _loader.getInputStream();)
+        {
+            List<String> _urls = new Vector();
+            List<String> _data = IOUtil.readLines(_in, StandardCharsets.UTF_8);
+            for(String _line : _data)
+            {
+                _line = _line.trim();
+                if(_line.startsWith("#")) continue;
+
+                String[] _parts = _line.split("\\s+", 3);
+                if(_parts.length>=2)
+                {
+                    _urls.add(_parts[1]);
+                }
+            }
+            return from(_vendor, _urls);
+        }
+        catch (Exception _xe)
+        {
+            //IGNORE
+        }
+        return null;
+    }
+
+
+    @Override
+    public List<String> getResourceList() {
+        return Collections.unmodifiableList(this.urls);
+    }
+
+    @Override
+    public void getResourceList(ResourceCallback _cb) {
+        for(String _res : GenericUrlProvider.this.getResourceList())
+        {
+            _cb.resourceCallback(_res);
+        }
+    }
+
+    @SneakyThrows
+    @Override
+    public void installResource(String _res, File _target) {
+        File _tmp = new File(OsUtil.getUnixyUserConfigDirectory(UUID.randomUUID().toString()));
+        _tmp.mkdirs();
+        FontMain.INSTANCE.logToStamped("installing "+_res);
+        File _tmpfile = new File(_tmp, _res.substring(_res.lastIndexOf('/')+1));
+        HttpOkClient.fetchToFile(_res, _tmpfile);
+        if(_tmpfile.getName().toLowerCase().endsWith(".zip"))
+        {
+            ZipFile _zf = new ZipFile(_tmpfile);
+            Enumeration<? extends ZipEntry> _en = _zf.entries();
+            while(_en.hasMoreElements())
+            {
+                ZipEntry _ze = _en.nextElement();
+                if(_ze.getName().toLowerCase().endsWith(".ttf") || _ze.getName().toLowerCase().endsWith(".otf"))
+                {
+                    String _name = _ze.getName();
+                    if(_name.contains("/"))
+                    {
+                        _name = _name.substring(_name.indexOf('/')+1);
+                    }
+                    _name = _name.replace(' ', '_');
+                    File _dest = new File(_target, _name);
+                    IOUtil.copyToFile(_zf.getInputStream(_ze),_dest);
+                    FontMain.INSTANCE.logToStamped("to "+_dest.getAbsolutePath());
+                }
+            }
+            _zf.close();
+        }
+        else
+        if(_tmpfile.getName().toLowerCase().endsWith(".ttf") || _tmpfile.getName().toLowerCase().endsWith(".otf"))
+        {
+            File _dest = new File(_target, _tmpfile.getName());
+            FileUtil.copyFile(_tmpfile, _dest);
+            FontMain.INSTANCE.logToStamped("to "+_dest.getAbsolutePath());
+        }
+        FileUtil.deleteDirectory(_tmp);
+    }
+
+    @Override
+    public void installResources(List<String> _res, File _target)
+    {
+        for(String _r : _res)
+        {
+            this.installResource(_r, _target);
+        }
+    }
+
+    @Override
+    public void interruptSync() {
+        if(this._syncThread!=null)
+        {
+            try {this._syncThread.interrupt();} catch(Exception _xe) {}
+        }
+    }
+}
