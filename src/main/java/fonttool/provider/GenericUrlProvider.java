@@ -98,7 +98,7 @@ public class GenericUrlProvider implements FontProvider
                     String _name = _ze.getName();
                     if(_name.contains("/"))
                     {
-                        _name = _name.substring(_name.indexOf('/')+1);
+                        _name = _name.substring(_name.lastIndexOf('/')+1);
                     }
                     _name = _name.replace(' ', '_');
                     File _dest = new File(_target, _name);
