@@ -7,10 +7,17 @@ import com.github.terefang.jmelange.commons.util.IOUtil;
 import com.github.terefang.jmelange.commons.util.OsUtil;
 import fonttool.FontMain;
 import lombok.SneakyThrows;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -85,37 +92,73 @@ public class GenericUrlProvider implements FontProvider
         _tmp.mkdirs();
         FontMain.INSTANCE.logToStamped("installing "+_res);
         File _tmpfile = new File(_tmp, _res.substring(_res.lastIndexOf('/')+1));
-        HttpOkClient.fetchToFile(_res, _tmpfile);
-        if(_tmpfile.getName().toLowerCase().endsWith(".zip"))
+        try
         {
-            ZipFile _zf = new ZipFile(_tmpfile);
-            Enumeration<? extends ZipEntry> _en = _zf.entries();
-            while(_en.hasMoreElements())
+            HttpOkClient.fetchToFile(_res, _tmpfile);
+            if(_tmpfile.getName().toLowerCase().endsWith(".zip"))
             {
-                ZipEntry _ze = _en.nextElement();
-                if(_ze.getName().toLowerCase().endsWith(".ttf") || _ze.getName().toLowerCase().endsWith(".otf"))
+                ZipFile _zf = new ZipFile(_tmpfile);
+                Enumeration<? extends ZipEntry> _en = _zf.entries();
+                while(_en.hasMoreElements())
                 {
-                    String _name = _ze.getName();
-                    if(_name.contains("/"))
+                    ZipEntry _ze = _en.nextElement();
+                    if(_ze.getName().toLowerCase().endsWith(".ttf") || _ze.getName().toLowerCase().endsWith(".otf"))
                     {
-                        _name = _name.substring(_name.lastIndexOf('/')+1);
+                        String _name = _ze.getName();
+                        if(_name.contains("/"))
+                        {
+                            _name = _name.substring(_name.lastIndexOf('/')+1);
+                        }
+                        _name = _name.replace(' ', '_');
+                        File _dest = new File(_target, _name);
+                        IOUtil.copyToFile(_zf.getInputStream(_ze),_dest);
+                        FontMain.INSTANCE.logToStamped("to "+_dest.getAbsolutePath());
                     }
-                    _name = _name.replace(' ', '_');
-                    File _dest = new File(_target, _name);
-                    IOUtil.copyToFile(_zf.getInputStream(_ze),_dest);
-                    FontMain.INSTANCE.logToStamped("to "+_dest.getAbsolutePath());
+                }
+                _zf.close();
+            }
+            else
+            if(_tmpfile.getName().toLowerCase().endsWith(".tar.gz"))
+            {
+                try (InputStream _fi = Files.newInputStream(_tmpfile.toPath());
+                     InputStream _bi = new BufferedInputStream(_fi);
+                     InputStream _gzi = new GzipCompressorInputStream(_bi);
+                     TarArchiveInputStream _i = new TarArchiveInputStream(_gzi)) {
+
+                    ArchiveEntry _entry = null;
+                    while ((_entry = _i.getNextEntry())!=null)
+                    {
+                        if(_entry.getName().toLowerCase().endsWith(".ttf") || _entry.getName().toLowerCase().endsWith(".otf"))
+                        {
+                            String _name = _entry.getName();
+                            if(_name.contains("/"))
+                            {
+                                _name = _name.substring(_name.lastIndexOf('/')+1);
+                            }
+                            _name = _name.replace(' ', '_');
+                            File _dest = new File(_target, _name);
+                            IOUtil.copyToFile(_i,_dest);
+                            FontMain.INSTANCE.logToStamped("to "+_dest.getAbsolutePath());
+                        }
+                    }
                 }
             }
-            _zf.close();
+            else
+            if(_tmpfile.getName().toLowerCase().endsWith(".ttf") || _tmpfile.getName().toLowerCase().endsWith(".otf"))
+            {
+                File _dest = new File(_target, _tmpfile.getName());
+                FileUtil.copyFile(_tmpfile, _dest);
+                FontMain.INSTANCE.logToStamped("to "+_dest.getAbsolutePath());
+            }
         }
-        else
-        if(_tmpfile.getName().toLowerCase().endsWith(".ttf") || _tmpfile.getName().toLowerCase().endsWith(".otf"))
+        catch (Exception _xe)
         {
-            File _dest = new File(_target, _tmpfile.getName());
-            FileUtil.copyFile(_tmpfile, _dest);
-            FontMain.INSTANCE.logToStamped("to "+_dest.getAbsolutePath());
+            FontMain.INSTANCE.logProgressError(_xe.getMessage(), _xe);
         }
-        FileUtil.deleteDirectory(_tmp);
+        finally
+        {
+            FileUtil.deleteDirectory(_tmp);
+        }
     }
 
     @Override
