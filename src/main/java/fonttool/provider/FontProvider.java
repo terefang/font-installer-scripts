@@ -31,7 +31,7 @@ public interface FontProvider {
         GITHUB{
             @Override
             public FontProvider getProvider() {
-                return super.getProvider();
+                return new GithubProvider();
             }
         },
         LIBRE{
