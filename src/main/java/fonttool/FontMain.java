@@ -48,6 +48,7 @@ public class FontMain extends JXFrame
     private JTextField _target;
     private JCheckBox _confirm;
     private FontProvider _prov;
+    private JCheckBox _subfolder;
 
     public FontMain() throws HeadlessException
     {
@@ -232,7 +233,7 @@ public class FontMain extends JXFrame
                             {
                                 if(FontMain.INSTANCE._confirm.isSelected())
                                 {
-                                    _prov.installResource(_sel.toString(), _tgt);
+                                    _prov.installResource(_sel.toString(), _tgt, FontMain.this._subfolder.isSelected());
                                 }
                                 else
                                 {
@@ -317,6 +318,7 @@ public class FontMain extends JXFrame
         }));
 
         _panel.add(this._confirm = new JCheckBox("Confirm"));
+        _panel.add(this._subfolder = new JCheckBox("Subfolder"));
 
         this.panel.add(_panel);
     }

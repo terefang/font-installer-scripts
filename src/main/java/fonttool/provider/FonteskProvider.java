@@ -85,14 +85,15 @@ public class FonteskProvider extends GenericUrlProvider
 
     @SneakyThrows
     @Override
-    public void installResource(String _res, File _target) {
+    public void installResource(String _res, File _target, boolean _sf) {
         //    XDL=$(curl "$x"|xq -q 'div.fw-col-inner script' -n|fgrep location.href |cut -f2 -d';' |cut -f1 -d'?')
         //    echo "0  $XDL/font.zip" > "$LIST"
         Document _doc = Jsoup.parse(new URL(_res), 10000);
         Element _el = _doc.selectFirst("div.fw-col-inner > script");
         String _text = _el.toString();
-        _text = _text.substring(_text.indexOf('\'')+1, _text.lastIndexOf('\''))+"&/font.zip";
-        super.installResource(_text, _target);
+        _text = _text.substring(_text.indexOf('\'')+1, _text.lastIndexOf('\''));
+        _text = _text+"&/"+_text.substring(_text.lastIndexOf('/',_text.lastIndexOf('?')-3), _text.lastIndexOf('?')-2)+".zip";
+        super.installResource(_text, _target, _sf);
     }
 
 }

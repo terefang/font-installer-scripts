@@ -65,7 +65,7 @@ public class GoogleProvider extends GenericUrlProvider
 
     @SneakyThrows
     @Override
-    public void installResource(String _res, File _target) {
+    public void installResource(String _res, File _target, boolean _sf) {
         //    for y in $(curl "$GFONTURI$x" 2>/dev/null |tail +2|jq -r -c '.manifest.fileRefs[] | (.url+"?/"+.filename )'); do
         //      echo "0  $y" >> "$LIST"
         //    done
@@ -76,7 +76,7 @@ public class GoogleProvider extends GenericUrlProvider
         List<Map<String,String>> _list = (List<Map<String,String>>)((Map<String,List<Map<String,String>>>)PdataUtil.loadFrom(new StringReader(_text)).get("manifest")).get("fileRefs");
         for(Map<String,String> _entry : _list)
         {
-            super.installResource(_entry.get("url")+"?/"+_entry.get("filename"), _target);
+            super.installResource(_entry.get("url")+"?/"+_entry.get("filename"), _target, _sf);
         }
     }
 

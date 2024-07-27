@@ -80,10 +80,5 @@ public class FontRepoProvider extends GenericUrlProvider
         this._syncThread.start();
     }
 
-    @SneakyThrows
-    @Override
-    public void installResource(String _res, File _target) {
-        //super.installResource(_text, _target);
-    }
 
 }

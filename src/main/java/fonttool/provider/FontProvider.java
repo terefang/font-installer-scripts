@@ -28,40 +28,16 @@ public interface FontProvider {
                 return GenericUrlProvider.from("CDNFONTS",ClasspathResourceLoader.of("data/cdnfonts.urls", null));
             }
         },
-        GITHUB{
+        DAFONT{
             @Override
             public FontProvider getProvider() {
-                return new GithubProvider();
+                return DaFontProvider.getInstance(false);
             }
         },
-        LIBRE{
+        DAFONT_NONFREE{
             @Override
             public FontProvider getProvider() {
-                return GenericUrlProvider.from("LIBRE",ClasspathResourceLoader.of("data/libre.urls", null));
-            }
-        },
-        OPENSANS{
-            @Override
-            public FontProvider getProvider() {
-                return GenericUrlProvider.from("OPENSANS",ClasspathResourceLoader.of("data/opensans.urls", null));
-            }
-        },
-        REDHAT{
-            @Override
-            public FontProvider getProvider() {
-                return GenericUrlProvider.from("REDHAT",ClasspathResourceLoader.of("data/redhat.urls", null));
-            }
-        },
-        TEX{
-            @Override
-            public FontProvider getProvider() {
-                return GenericUrlProvider.from("TEX",ClasspathResourceLoader.of("data/tex.urls", null));
-            }
-        },
-        URW{
-            @Override
-            public FontProvider getProvider() {
-                return GenericUrlProvider.from("URW",ClasspathResourceLoader.of("data/urw.urls", null));
+                return DaFontProvider.getInstance(true);
             }
         },
         FONTESK{
@@ -88,16 +64,52 @@ public interface FontProvider {
                 return FontRepoProvider.getInstance(true);
             }
         },
+        GITHUB{
+            @Override
+            public FontProvider getProvider() {
+                return new GithubProvider();
+            }
+        },
         GOOGLE{
             @Override
             public FontProvider getProvider() {
                 return GoogleProvider.getInstance();
             }
         },
+        LIBRE{
+            @Override
+            public FontProvider getProvider() {
+                return GenericUrlProvider.from("LIBRE",ClasspathResourceLoader.of("data/libre.urls", null));
+            }
+        },
         NERDFONTS{
             @Override
             public FontProvider getProvider() {
                 return NerdProvider.getInstance();
+            }
+        },
+        OPENSANS{
+            @Override
+            public FontProvider getProvider() {
+                return GenericUrlProvider.from("OPENSANS",ClasspathResourceLoader.of("data/opensans.urls", null));
+            }
+        },
+        REDHAT{
+            @Override
+            public FontProvider getProvider() {
+                return GenericUrlProvider.from("REDHAT",ClasspathResourceLoader.of("data/redhat.urls", null));
+            }
+        },
+        TEX{
+            @Override
+            public FontProvider getProvider() {
+                return GenericUrlProvider.from("TEX",ClasspathResourceLoader.of("data/tex.urls", null));
+            }
+        },
+        URW{
+            @Override
+            public FontProvider getProvider() {
+                return GenericUrlProvider.from("URW",ClasspathResourceLoader.of("data/urw.urls", null));
             }
         },
         ;
@@ -112,8 +124,8 @@ public interface FontProvider {
     }
     public void getResourceList(ResourceCallback _cb);
 
-    public void installResource(String _res, File _target);
-    public void installResources(List<String> _res, File _target);
+    public void installResource(String _res, File _target, boolean _sf);
+    public void installResources(List<String> _res, File _target, boolean _sf);
 
     public void interruptSync();
 

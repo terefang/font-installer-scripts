@@ -35,7 +35,7 @@ public class GithubProvider extends GenericUrlProvider
     static GithubProvider INSTANCE;
 
     public static String REPOLIST = "data/github.list"; // ClasspathResourceLoader.of(
-    public static String REPOURI = "https://github.com/%s/archive/refs/heads/master.zip";
+    public static String REPOURI = "https://github.com/%s/archive/refs/heads/master.zip?/%s.zip";
 
     @SneakyThrows
     @Override
@@ -58,7 +58,7 @@ public class GithubProvider extends GenericUrlProvider
                         String[] _parts = _line.split("\\s+", 3);
                         if(_parts.length>=1)
                         {
-                            _cb.resourceCallback(String.format(REPOURI,_parts[0]));
+                            _cb.resourceCallback(String.format(REPOURI,_parts[0],_parts[0].replaceAll("[^A-Za-z0-9]+", "_")));
                             FontMain.INSTANCE.logProgress((_i%100), "syncing List "+_i);
                             _i++;
                         }

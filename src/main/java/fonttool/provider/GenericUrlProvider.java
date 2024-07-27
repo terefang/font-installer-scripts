@@ -87,7 +87,7 @@ public class GenericUrlProvider implements FontProvider
 
     @SneakyThrows
     @Override
-    public void installResource(String _res, File _target) {
+    public void installResource(String _res, File _target, boolean _sf) {
         File _tmp = new File(OsUtil.getUnixyUserConfigDirectory(UUID.randomUUID().toString()));
         _tmp.mkdirs();
         FontMain.INSTANCE.logToStamped("installing "+_res);
@@ -97,6 +97,8 @@ public class GenericUrlProvider implements FontProvider
             HttpOkClient.fetchToFile(_res, _tmpfile);
             if(_tmpfile.getName().toLowerCase().endsWith(".zip"))
             {
+                String _sd = _tmpfile.getName();
+                _sd = _sd.substring(0, _sd.length()-4);
                 ZipFile _zf = new ZipFile(_tmpfile);
                 Enumeration<? extends ZipEntry> _en = _zf.entries();
                 while(_en.hasMoreElements())
@@ -110,7 +112,8 @@ public class GenericUrlProvider implements FontProvider
                             _name = _name.substring(_name.lastIndexOf('/')+1);
                         }
                         _name = _name.replace(' ', '_');
-                        File _dest = new File(_target, _name);
+                        File _dest = new File(_target, (_sf?_sd+"/":"")+_name);
+                        if(_sf) _dest.getParentFile().mkdirs();
                         IOUtil.copyToFile(_zf.getInputStream(_ze),_dest);
                         FontMain.INSTANCE.logToStamped("to "+_dest.getAbsolutePath());
                     }
@@ -120,6 +123,8 @@ public class GenericUrlProvider implements FontProvider
             else
             if(_tmpfile.getName().toLowerCase().endsWith(".tar.gz"))
             {
+                String _sd = _tmpfile.getName();
+                _sd = _sd.substring(0, _sd.length()-7);
                 try (InputStream _fi = Files.newInputStream(_tmpfile.toPath());
                      InputStream _bi = new BufferedInputStream(_fi);
                      InputStream _gzi = new GzipCompressorInputStream(_bi);
@@ -136,7 +141,8 @@ public class GenericUrlProvider implements FontProvider
                                 _name = _name.substring(_name.lastIndexOf('/')+1);
                             }
                             _name = _name.replace(' ', '_');
-                            File _dest = new File(_target, _name);
+                            File _dest = new File(_target, (_sf?_sd+"/":"")+_name);
+                            if(_sf) _dest.getParentFile().mkdirs();
                             IOUtil.copyToFile(_i,_dest);
                             FontMain.INSTANCE.logToStamped("to "+_dest.getAbsolutePath());
                         }
@@ -146,7 +152,11 @@ public class GenericUrlProvider implements FontProvider
             else
             if(_tmpfile.getName().toLowerCase().endsWith(".ttf") || _tmpfile.getName().toLowerCase().endsWith(".otf"))
             {
-                File _dest = new File(_target, _tmpfile.getName());
+                String _sd = _tmpfile.getName();
+                _sd = _sd.substring(0, _sd.length()-4);
+
+                File _dest = new File(_target, (_sf?_sd+"/":"")+_tmpfile.getName());
+                if(_sf) _dest.getParentFile().mkdirs();
                 FileUtil.copyFile(_tmpfile, _dest);
                 FontMain.INSTANCE.logToStamped("to "+_dest.getAbsolutePath());
             }
@@ -162,11 +172,11 @@ public class GenericUrlProvider implements FontProvider
     }
 
     @Override
-    public void installResources(List<String> _res, File _target)
+    public void installResources(List<String> _res, File _target, boolean _sf)
     {
         for(String _r : _res)
         {
-            this.installResource(_r, _target);
+            this.installResource(_r, _target, _sf);
         }
     }
 
