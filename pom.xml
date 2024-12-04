@@ -6,7 +6,7 @@
 
     <groupId>com.github.terefang</groupId>
     <artifactId>fontinstall</artifactId>
-    <version>2024.7.30</version>
+    <version>2024.8.31</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -14,7 +14,7 @@
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version.jmelange>2024.4.241</version.jmelange>
+        <version.jmelange>2024.10.247</version.jmelange>
     </properties>
 
     <dependencies>
@@ -69,6 +69,11 @@
                     <artifactId>commons-compress</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.terefang.jmelange</groupId>
+            <artifactId>swing-jmelange</artifactId>
+            <version>${version.jmelange}</version>
         </dependency>
         <dependency>
             <groupId>com.github.terefang.jmelange</groupId>

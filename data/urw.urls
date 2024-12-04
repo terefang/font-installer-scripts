@@ -1,4 +1,4 @@
-465fd5faab9ba9e7590f1bf761015862eb09748d https://www.mirrorservice.org/sites/distfiles.macports.org/urw-fonts/urw-fonts-1.0.7pre44.tar.bz2
-0                                         https://github.com/ArtifexSoftware/urw-base35-fonts/archive/refs/tags/20200910.tar.gz
-#0                                        https://arkandis.tuxfamily.org/fonts/GS-Sup.zip
-0                                        https://mirrors.ctan.org/install/fonts/urw/classico.tds.zip
+0 https://www.mirrorservice.org/sites/distfiles.macports.org/urw-fonts/urw-fonts-1.0.7pre44.tar.bz2
+0 https://github.com/ArtifexSoftware/urw-base35-fonts/archive/refs/tags/20200910.tar.gz
+#0 https://arkandis.tuxfamily.org/fonts/GS-Sup.zip
+0 https://mirrors.ctan.org/install/fonts/urw/classico.tds.zip

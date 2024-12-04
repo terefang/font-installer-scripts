@@ -40,6 +40,24 @@ public interface FontProvider {
                 return DaFontProvider.getInstance(true);
             }
         },
+        FONTDOWNLOAD{
+            @Override
+            public FontProvider getProvider() {
+                return FontDownloadProvider.getInstance(false);
+            }
+        },
+        FONTGET{
+            @Override
+            public FontProvider getProvider() {
+                return FontGetProvider.getInstance(false);
+            }
+        },
+        FONTGET_NONFREE{
+            @Override
+            public FontProvider getProvider() {
+                return FontGetProvider.getInstance(true);
+            }
+        },
         FONTESK{
             @Override
             public FontProvider getProvider() {

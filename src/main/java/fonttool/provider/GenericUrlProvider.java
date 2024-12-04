@@ -2,6 +2,7 @@ package fonttool.provider;
 
 import com.github.terefang.jmelange.commons.http.HttpOkClient;
 import com.github.terefang.jmelange.commons.loader.ResourceLoader;
+import com.github.terefang.jmelange.commons.util.CfgDataUtil;
 import com.github.terefang.jmelange.commons.util.FileUtil;
 import com.github.terefang.jmelange.commons.util.IOUtil;
 import com.github.terefang.jmelange.commons.util.OsUtil;
@@ -10,6 +11,7 @@ import lombok.SneakyThrows;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 import java.io.BufferedInputStream;
@@ -87,9 +89,11 @@ public class GenericUrlProvider implements FontProvider
 
     @SneakyThrows
     @Override
-    public void installResource(String _res, File _target, boolean _sf) {
-        File _tmp = new File(OsUtil.getUnixyUserConfigDirectory(UUID.randomUUID().toString()));
+    public void installResource(String _res, File _target, boolean _sf)
+    {
+        File _tmp = CfgDataUtil.getCacheFile("font-installer",UUID.randomUUID().toString());
         _tmp.mkdirs();
+        FontMain.INSTANCE.logToStamped("using cache "+_tmp.getAbsolutePath());
         FontMain.INSTANCE.logToStamped("installing "+_res);
         File _tmpfile = new File(_tmp, _res.substring(_res.lastIndexOf('/')+1));
         try
@@ -121,13 +125,15 @@ public class GenericUrlProvider implements FontProvider
                 _zf.close();
             }
             else
-            if(_tmpfile.getName().toLowerCase().endsWith(".tar.gz"))
+            if(_tmpfile.getName().toLowerCase().endsWith(".tar.gz")
+            || _tmpfile.getName().toLowerCase().endsWith(".tar.bz2"))
             {
+                boolean _usebz = _tmpfile.getName().toLowerCase().endsWith(".tar.bz2");
                 String _sd = _tmpfile.getName();
-                _sd = _sd.substring(0, _sd.length()-7);
+                _sd = _sd.substring(0, _sd.length()-(_usebz ? 8 : 7));
                 try (InputStream _fi = Files.newInputStream(_tmpfile.toPath());
                      InputStream _bi = new BufferedInputStream(_fi);
-                     InputStream _gzi = new GzipCompressorInputStream(_bi);
+                     InputStream _gzi = _usebz ? new BZip2CompressorInputStream(_bi) : new GzipCompressorInputStream(_bi);
                      TarArchiveInputStream _i = new TarArchiveInputStream(_gzi)) {
 
                     ArchiveEntry _entry = null;
@@ -146,6 +152,10 @@ public class GenericUrlProvider implements FontProvider
                             IOUtil.copyToFile(_i,_dest);
                             FontMain.INSTANCE.logToStamped("to "+_dest.getAbsolutePath());
                         }
+                        else
+                        {
+                            FontMain.INSTANCE.logToStamped("skipping "+_entry.getName());
+                        }
                     }
                 }
             }
@@ -159,6 +169,10 @@ public class GenericUrlProvider implements FontProvider
                 if(_sf) _dest.getParentFile().mkdirs();
                 FileUtil.copyFile(_tmpfile, _dest);
                 FontMain.INSTANCE.logToStamped("to "+_dest.getAbsolutePath());
+            }
+            else
+            {
+                FontMain.INSTANCE.logToStamped("skipping "+_tmpfile.getName());
             }
         }
         catch (Exception _xe)

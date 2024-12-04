@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
+import com.github.terefang.jmelange.commons.util.CfgDataUtil;
 import com.github.terefang.jmelange.commons.util.ListMapUtil;
+import com.github.terefang.jmelange.swing.SwingHelper;
 import com.jidesoft.swing.JideBoxLayout;
 import com.jidesoft.swing.JideComboBox;
 import com.jidesoft.swing.JideTabbedPane;
@@ -292,27 +294,23 @@ public class FontMain extends JXFrame
         _panel.setLayout(new BoxLayout(_panel, BoxLayout.X_AXIS));
         _panel.setBorder(_title);
 
-        _panel.add(this._target = new JTextField(30));
-        this._target.setMinimumSize(new Dimension(200, 25));
-        this._target.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
-
+        _panel.add(this._target = SwingHelper.createTextField(CfgDataUtil.getRecentFromConfig(OsUtil.getApplicationName(),OsUtil.getUserFontDirectory()).get(0) ));
+        
         _panel.add(new JButton(new AbstractAction("...") {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                String _dir = OsUtil.getUserFontDirectory();
+                String _dir = CfgDataUtil.getRecentFromConfig(OsUtil.getApplicationName(),OsUtil.getUserFontDirectory()).get(0);
                 SwingUtilities.invokeLater(()->{
-                    JFileChooser _j = new JFileChooser();
-                    _j.setCurrentDirectory(new File(_dir));
-                    _j.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                    int _opt = _j.showSaveDialog(FontMain.INSTANCE);
-                    if(_opt == JFileChooser.APPROVE_OPTION) {
-                        FontMain.INSTANCE._target.setText(_j.getSelectedFile().getAbsolutePath());
-                    }
-                    else
-                    {
+                    SwingHelper.executeDirectoryChooser(FontMain.INSTANCE,
+                    "Choose Font Installation Directory ...", "Select",
+                    new File(_dir),
+                    (_d)->{
+                        CfgDataUtil.addRecentToConfig(_d.getAbsolutePath());
+                        FontMain.INSTANCE._target.setText(_d.getAbsolutePath());
+                    },()->{
                         FontMain.INSTANCE._target.setText(_dir);
-                    }
+                    });
                 });
             }
         }));
@@ -453,6 +451,7 @@ public class FontMain extends JXFrame
     @SneakyThrows
     public static void main(String[] args)
     {
+        OsUtil.setApplicationName("font-installer");
         if (OsUtil.isMac) {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             System.setProperty("swing.defaultlaf", UIManager.getCrossPlatformLookAndFeelClassName());
