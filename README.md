@@ -16,6 +16,10 @@ This package allows for easy installation of Fonts from the Web including:
 
 You will need an Internet connection during execution.
 
+## Note
+
+A precompiled Java-based Gui installer is available from the releases page requireing Java 11+.  
+
 ## Prerequisites
 
 the following utilities are used:
