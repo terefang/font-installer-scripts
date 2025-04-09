@@ -1,7 +1,9 @@
 #
+0 https://gitlab.gnome.org/GNOME/adwaita-fonts/-/archive/main/adwaita-fonts-main.zip
 0 https://ftp.gnu.org/gnu/freefont/freefont-ttf-20120503.zip
 0 https://ftp.gnu.org/gnu/freefont/freefont-otf-20120503.tar.gz
 0 https://github.com/edwardtufte/et-book/archive/refs/heads/gh-pages.zip?/et-book.zip
+0 https://github.com/bBoxType/FiraGO/releases/download/1.000/bBoxType_FiraGO_1000.zip?/FiraGO.zip
 0 https://github.com/microsoft/cascadia-code/releases/download/v2404.23/CascadiaCode-2404.23.zip
 0 https://typodermicfonts.com/wp-content/uploads/2024/04/typodermic-public-domain-2024-04.zip
 0 https://typodermicfonts.com/wp-content/uploads/2024/04/typodermic-free-fonts-2024b.zip
@@ -33,4 +35,8 @@
 0 https://www.1001fonts.com/download/typeo.zip
 0 https://www.1001fonts.com/download/jackwrite.zip
 0 https://www.1001fonts.com/download/x-typewriter.zip
+#
+0 https://www.1001fonts.com/download/seshat.zip
+0 https://www.1001fonts.com/download/laconick-normala.zip
+0 https://www.1001fonts.com/download/eagle-lake.zip
 #

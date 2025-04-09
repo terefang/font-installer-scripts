@@ -76,7 +76,7 @@ public class GoogleProvider extends GenericUrlProvider
         List<Map<String,String>> _list = (List<Map<String,String>>)((Map<String,List<Map<String,String>>>)PdataUtil.loadFrom(new StringReader(_text)).get("manifest")).get("fileRefs");
         for(Map<String,String> _entry : _list)
         {
-            super.installResource(_entry.get("url")+"?/"+_entry.get("filename"), _target, _sf);
+            super.installResource(_entry.get("url")+"?/"+_entry.get("filename"), _sf ? new File(_target, _res.replaceAll("[^A-Za-z0-9]+", "")): _target, false);
         }
     }
 

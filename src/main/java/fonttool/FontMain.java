@@ -287,32 +287,33 @@ public class FontMain extends JXFrame
     }
 
     private void createTargetBar() {
-        Border _etch = BorderFactory.createEtchedBorder((EtchedBorder.LOWERED));
-        TitledBorder _title = BorderFactory.createTitledBorder(_etch, "Target");
-
-        JPanel _panel = new JPanel();
-        _panel.setLayout(new BoxLayout(_panel, BoxLayout.X_AXIS));
-        _panel.setBorder(_title);
+        JPanel _panel = SwingHelper.createHxBox("Target");
 
         _panel.add(this._target = SwingHelper.createTextField(CfgDataUtil.getRecentFromConfig(OsUtil.getApplicationName(),OsUtil.getUserFontDirectory()).get(0) ));
         
-        _panel.add(new JButton(new AbstractAction("...") {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                String _dir = CfgDataUtil.getRecentFromConfig(OsUtil.getApplicationName(),OsUtil.getUserFontDirectory()).get(0);
-                SwingUtilities.invokeLater(()->{
-                    SwingHelper.executeDirectoryChooser(FontMain.INSTANCE,
-                    "Choose Font Installation Directory ...", "Select",
-                    new File(_dir),
-                    (_d)->{
-                        CfgDataUtil.addRecentToConfig(_d.getAbsolutePath());
-                        FontMain.INSTANCE._target.setText(_d.getAbsolutePath());
-                    },()->{
-                        FontMain.INSTANCE._target.setText(_dir);
-                    });
-                });
-            }
+        _panel.add(SwingHelper.createButton("U",()->{
+            FontMain.INSTANCE._target.setText(OsUtil.getUserFontDirectory());
+        }));
+        _panel.add(SwingHelper.createButton("L",()->{
+            FontMain.INSTANCE._target.setText(OsUtil.getLocalFontDirectory());
+        }));
+        _panel.add(SwingHelper.createButton("S",()->{
+            FontMain.INSTANCE._target.setText(OsUtil.getSystemFontDirectory());
+        }));
+        
+        _panel.add(SwingHelper.createButton("...",()->{
+            String _dir = CfgDataUtil.getRecentFromConfig(OsUtil.getApplicationName(),OsUtil.getUserFontDirectory()).get(0);
+            SwingUtilities.invokeLater(()->{
+                SwingHelper.executeDirectoryChooser(FontMain.INSTANCE,
+                        "Choose Font Installation Directory ...", "Select",
+                        new File(_dir),
+                        (_d)->{
+                            CfgDataUtil.addRecentToConfig(_d.getAbsolutePath());
+                            FontMain.INSTANCE._target.setText(_d.getAbsolutePath());
+                        },()->{
+                            FontMain.INSTANCE._target.setText(_dir);
+                        });
+            });
         }));
 
         _panel.add(this._confirm = new JCheckBox("Confirm"));

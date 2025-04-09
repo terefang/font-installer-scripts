@@ -82,6 +82,12 @@ public interface FontProvider {
                 return FontRepoProvider.getInstance(true);
             }
         },
+        FONNTs_NONFREE{
+            @Override
+            public FontProvider getProvider() {
+                return FonntProvider.getInstance();
+            }
+        },
         GITHUB{
             @Override
             public FontProvider getProvider() {
